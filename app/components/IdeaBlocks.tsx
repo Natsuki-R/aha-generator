@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Physics, useBox, usePlane } from '@react-three/cannon';
-import { Text } from '@react-three/drei';
+import { Text, PivotControls } from '@react-three/drei';
 import type { PlaneProps } from '@react-three/cannon';
 
 interface BlockProps {
@@ -20,7 +20,6 @@ interface BlockData {
   color: string;
 }
 
-// Simple function to combine ideas
 const generateNewIdea = (idea1: string, idea2: string): string => {
   const combinations: Record<string, string> = {
     'music+painting': 'Visual Symphony',
@@ -33,36 +32,52 @@ const generateNewIdea = (idea1: string, idea2: string): string => {
 };
 
 const Block: React.FC<BlockProps> = ({ position, text, color, onCollide }) => {
-  const [ref] = useBox(() => ({
+  const [ref, api] = useBox(() => ({
     mass: 1,
     position,
     args: [4, 4, 4],
     onCollide: onCollide ? () => onCollide(text) : undefined,
   }));
 
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
+  const handleDrag = (matrix) => {
+    // Extract position from matrix
+    const position = [matrix.elements[12], matrix.elements[13], matrix.elements[14]];
+    api.position.set(position[0], position[1], position[2]);
+  };
+
   return (
-    <group ref={ref}>
-      <mesh castShadow>
-        <boxGeometry args={[4, 4, 4]} />
-        <meshLambertMaterial color={color} />
-      </mesh>
-      <Text
-        position={[0, 0, 2.1]}
-        fontSize={0.5}
-        color="black"
-        anchorX="center"
-        anchorY="middle"
-      >
-        {text}
-      </Text>
-    </group>
+    <PivotControls 
+      anchor={[0, 0, 0]}
+      depthTest={false}
+      lineWidth={2}
+      scale={2}
+      onDrag={handleDrag}
+    >
+      <group ref={ref}>
+        <mesh castShadow>
+          <boxGeometry args={[4, 4, 4]} />
+          <meshLambertMaterial color={color} />
+        </mesh>
+        <Text
+          position={[0, 0, 2.1]}
+          fontSize={0.5}
+          color="black"
+          anchorX="center"
+          anchorY="middle"
+        >
+          {text}
+        </Text>
+      </group>
+    </PivotControls>
   );
 };
 
 const Ground: React.FC = () => {
   const [ref] = usePlane(() => ({
     rotation: [-Math.PI / 2, 0, 0],
-    position: [0, -10, 0],
+    position: [0, -5, 0],
   } as PlaneProps));
 
   return (
@@ -75,8 +90,8 @@ const Ground: React.FC = () => {
 
 const IdeaBlocks: React.FC = () => {
   const [blocks, setBlocks] = useState<BlockData[]>([
-    { id: 1, text: 'music', position: [-5, 0, 0], color: '#ff9999' },
-    { id: 2, text: 'painting', position: [5, 0, 0], color: '#99ff99' },
+    { id: 1, text: 'music', position: [-10, 0, 0], color: '#ff9999' },
+    { id: 2, text: 'painting', position: [10, 0, 0], color: '#99ff99' },
   ]);
   
   const collidedBlocks = useRef<Set<string>>(new Set());
@@ -110,7 +125,7 @@ const IdeaBlocks: React.FC = () => {
       <Canvas shadows camera={{ position: [0, 15, 30], fov: 50 }}>
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} castShadow />
-        <Physics>
+        <Physics gravity={[0, -9.81, 0]}>
           <Ground />
           {blocks.map(block => (
             <Block
@@ -124,7 +139,7 @@ const IdeaBlocks: React.FC = () => {
         </Physics>
       </Canvas>
       <div className="absolute top-4 left-4 text-white bg-black/50 p-2 rounded">
-        <p>Drag blocks together to generate new ideas!</p>
+        <p>Drag the controls to move blocks and combine ideas!</p>
       </div>
     </div>
   );

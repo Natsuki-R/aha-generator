@@ -9,9 +9,17 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@react-three/cannon": "^6.6.0",
+    "@react-three/drei": "^9.121.5",
+    "@react-three/fiber": "^9.0.0-rc.10",
+    "@types/three": "^0.173.0",
+    "framer-motion": "^12.4.4",
+    "next": "15.1.7",
+    "openai": "^4.85.2",
+    "random-words": "^2.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.1.7"
+    "three": "^0.173.0"
   },
   "devDependencies": {
     "typescript": "^5",
