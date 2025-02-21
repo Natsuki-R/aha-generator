@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import styles from "./style.module.css";
 import { generate } from "random-words";
 
+const BLOCK_COUNT: number = 18;
+
 export default function AhaPage() {
   const [blocks, setBlocks] = useState<string[]>([]);
   const [panelBlocks, setPanelBlocks] = useState<string[]>([]);
@@ -15,8 +17,8 @@ export default function AhaPage() {
   useEffect(() => {
     const uniqueWords = new Set<string>();
 
-    while (uniqueWords.size < 20) {
-      const newWords = generate({ exactly: 20 });
+    while (uniqueWords.size < BLOCK_COUNT) {
+      const newWords = generate({ exactly: BLOCK_COUNT });
 
       // Ensure newWords is an array before using forEach
       (Array.isArray(newWords) ? newWords : [newWords]).forEach((word) => {
@@ -120,7 +122,7 @@ export default function AhaPage() {
           className={styles.resetButton}
           onClick={() => {
             setMergedBlock(null);
-            const newWords = generate({ exactly: 20 });
+            const newWords = generate({ exactly: BLOCK_COUNT });
             setBlocks(Array.isArray(newWords) ? newWords : [newWords]); // Ensure it's always an array
           }}
         >
